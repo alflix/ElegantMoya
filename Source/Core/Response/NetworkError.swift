@@ -1,6 +1,6 @@
 //
 //  NetworkError.swift
-//  CircleQ
+//  Ganguo
 //
 //  Created by John on 2019/6/11.
 //  Copyright © 2019 Ganguo. All rights reserved.
@@ -8,6 +8,16 @@
 
 import Foundation
 
+/// 自定义错误类型（待完善）
+///
+/// - cache: 缓存错误
+/// - loadFail: 加载错误
+public enum ResponseStatusCode: Int {
+    case cache = 230
+    case loadFail = 700
+}
+
+/// 错误码
 public struct ResponseCode {
     static let successResponseStatus = 0     // 接口成功调用
     static let forceLogoutError = 401       // 未登录或身份信息已过期

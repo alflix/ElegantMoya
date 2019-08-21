@@ -10,34 +10,64 @@
   "authors": {
     "John": "john@ganguo.hk"
   },
+  "source": {
+    "path": "/"
+  },
   "swift_versions": "5.0",
   "platforms": {
     "ios": "10.0"
   },
-  "source": {
-    "path": "/"
-  },
-  "source_files": "Sources/**/*.swift",
   "requires_arc": true,
-  "dependencies": {
-    "SwifterSwift": [
+  "default_subspecs": "Core",
+  "subspecs": [
+    {
+      "name": "Core",
+      "dependencies": {
+        "SnapKit": [
 
-    ],
-    "AlamofireImage": [
+        ],
+        "SwifterSwift": [
 
-    ],
-    "SnapKit": [
+        ]
+      },
+      "source_files": "Source/Core/**/*.swift"
+    },
+    {
+      "name": "AlamofireImage",
+      "dependencies": {
+        "GGUI/Core": [
 
-    ],
-    "SwiftTimer": [
+        ],
+        "AlamofireImage": [
 
-    ],
-    "DeviceKit": [
+        ]
+      },
+      "source_files": "Source/AlamofireImage/*.swift"
+    },
+    {
+      "name": "SwiftTimer",
+      "dependencies": {
+        "GGUI/Core": [
 
-    ],
-    "MBProgressHUD": [
+        ],
+        "SwiftTimer": [
 
-    ]
-  },
+        ]
+      },
+      "source_files": "Source/SwiftTimer/*.swift"
+    },
+    {
+      "name": "MBProgressHUD",
+      "dependencies": {
+        "GGUI/Core": [
+
+        ],
+        "MBProgressHUD": [
+
+        ]
+      },
+      "source_files": "Source/MBProgressHUD/*.swift"
+    }
+  ],
   "swift_version": "5.0"
 }

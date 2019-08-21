@@ -1,6 +1,6 @@
 //
 //  NetworkViewController.swift
-//  CircleQ
+//  Ganguo
 //
 //  Created by John on 2019/7/10.
 //  Copyright © 2019 Ganguo. All rights reserved.
@@ -70,7 +70,7 @@ open class NetworkViewController: UIViewController {
 }
 
 public extension NetworkViewController {
-    public func endLoadData() {
+    func endLoadData() {
         loadingState = .success
         refreshScrollView?.reloadEmptyDataSet()
     }

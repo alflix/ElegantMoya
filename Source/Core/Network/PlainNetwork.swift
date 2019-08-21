@@ -1,6 +1,6 @@
 //
 //  PlainNetwork.swift
-//  CircleQ
+//  Ganguo
 //
 //  Created by John on 2019/6/15.
 //  Copyright © 2019 Ganguo. All rights reserved.
@@ -26,12 +26,6 @@ public class PlainNetwork {
         error: ((NetworkError) -> Void)? = nil)
         -> Cancellable? {
             return request(api, comletion: completion, error: error)
-    }
-
-    /// 移除 API 缓存，适用于 Network
-    public func removeCache<API: TargetType & MoyaAddable>(_ api: API) {
-        guard let cacheKey = api.cacheKey else { return }
-        try? ResponseCache.shared.responseStorage?.removeObject(forKey: cacheKey)
     }
 }
 
@@ -80,28 +74,23 @@ private extension PlainNetwork {
         response: Response,
         comletion: ((Response) -> Void)? = nil,
         error: ((NetworkError) -> Void)? = nil) {
-        switch api.task {
-        case .uploadMultipart, .requestParameters, .requestPlain:
-            do {
-                if let temp = comletion {
-                    try handleResponseData(api: api, data: response)
-                    temp(response)
-                    showSuccess(api: api)
-                }
-            } catch let NetworkError.serverResponse(message, code) {
-                showFail(api: api, message: message)
-                error?(NetworkError.serverResponse(message: message, code: code))
-            } catch let NetworkError.loginStateIsexpired(message) {
-                ElegantMoya.logoutClosure()
-                showFail(api: api, message: message)
-                error?(NetworkError.loginStateIsexpired(message: message))
-            } catch {
-                #if Debug
-                fatalError("unkwnow error")
-                #endif
+        do {
+            if let temp = comletion {
+                try handleResponseData(api: api, data: response)
+                temp(response)
+                showSuccess(api: api)
             }
-        default:
-            ()
+        } catch let NetworkError.serverResponse(message, code) {
+            showFail(api: api, message: message)
+            error?(NetworkError.serverResponse(message: message, code: code))
+        } catch let NetworkError.loginStateIsexpired(message) {
+            ElegantMoya.logoutClosure()
+            showFail(api: api, message: message)
+            error?(NetworkError.loginStateIsexpired(message: message))
+        } catch {
+            #if Debug
+            fatalError("unkwnow error")
+            #endif
         }
     }
 

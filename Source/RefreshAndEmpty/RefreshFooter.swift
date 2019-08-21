@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import PullToRefreshKit
 
 public class RefreshFooter: UIView, RefreshableFooter {
     private let spinner: UIActivityIndicatorView = UIActivityIndicatorView(style: .gray)

@@ -1,6 +1,6 @@
 //
 //  Network.swift
-//  CircleQ
+//  Ganguo
 //
 //  Created by John on 2019/6/11.
 //  Copyright © 2019 Ganguo. All rights reserved.
@@ -9,17 +9,6 @@
 import Foundation
 import Moya
 import Cache
-
-public enum CachePolicy {
-    /// 返回缓存，如果没有缓存的话，拉取数据
-    case returnCacheDataElseFetch
-    ///  只拉取数据
-    case fetchIgnoringCacheData
-    /// 只返回缓存（较少用）
-    case returnCacheDataDontFetch
-    /// 返回缓存，并且拉取数据
-    case returnCacheDataAndFetch
-}
 
 /// T: Response -> Model 的泛型
 public class Network<T> where T: Codable {
@@ -85,15 +74,13 @@ private extension Network {
         modelListComletion: ((ListResponse<T>?) -> Void)? = nil,
         error: ((NetworkError) -> Void)? = nil)
         -> Cancellable? {
-            // 同一请求正在请求直接返回
-            if isSameRequest(api) { return nil }
-            let successblock = { (response: Response) in
+            let successblock = { (shouldRevoke: Bool, response: Response) in
                 DispatchQueue.main.async {
                     if let temp = modelComletion {
-                        self.handleSuccessResponse(api, response: response, modelComletion: temp, error: error)
+                        self.handleSuccessResponse(api, response: response, modelComletion: shouldRevoke ? temp : nil, error: error)
                     }
                     if let temp = modelListComletion {
-                        self.handleSuccessResponse(api, response: response, modelListComletion: temp, error: error)
+                        self.handleSuccessResponse(api, response: response, modelListComletion: shouldRevoke ? temp : nil, error: error)
                     }
                 }
             }
@@ -107,29 +94,34 @@ private extension Network {
                 if let cacheKey = api.cacheKey,
                     let responseStorage = ResponseCache.shared.responseStorage,
                     let response = try? responseStorage.object(forKey: cacheKey) {
-                    successblock(response)
+                    successblock(true, response)
                     return true
                 }
                 return false
             }
             let provider = createProvider(api: api)
+            var hasCache = false
+
             switch cachePolicy {
+            case .returnCacheDataAndFetch:
+                hasCache = checkIfCache()
+            case .returnCacheDataAndFetchBackground:
+                hasCache = checkIfCache()
             case .returnCacheDataElseFetch:
                 if checkIfCache() { return nil }
             case .fetchIgnoringCacheData:
                 break
             case .returnCacheDataDontFetch:
-                _ = checkIfCache()
+                hasCache = checkIfCache()
                 return nil
-            case .returnCacheDataAndFetch:
-                _ = checkIfCache()
             }
             let cancellable = provider.request(api, callbackQueue: .global()) { (response) in
                 // 请求完成移除
                 self.cleanRequest(api)
                 switch response {
                 case .success(let response):
-                    successblock(response)
+                    let shouldRevoke = (cachePolicy == .returnCacheDataAndFetchBackground && hasCache) ? false : true
+                    successblock(shouldRevoke, response)
                 case .failure:
                     errorblock(NetworkError.exception(message: ElegantMoya.ErrorMessage.server))
                 }
@@ -144,39 +136,34 @@ private extension Network {
         modelComletion: ((ModelResponse<T>?) -> Void)? = nil,
         modelListComletion: ((ListResponse<T>?) -> Void )? = nil,
         error: ((NetworkError) -> Void)? = nil) {
-        switch api.task {
-        case .uploadMultipart, .requestParameters, .requestPlain:
-            do {
-                if let temp = modelComletion {
-                    let modelResponse = try handleResponseData(isList: false, api: api, data: response)
-                    DispatchQueue.main.async {
-                        self.cacheData(api, data: response)
-                        temp(modelResponse.0)
-                        self.showSuccess(api: api)
-                    }
+        do {
+            if let temp = modelComletion {
+                let modelResponse = try handleResponseData(isList: false, api: api, data: response)
+                DispatchQueue.main.async {
+                    self.cacheData(api, data: response)
+                    temp(modelResponse.0)
+                    self.showSuccess(api: api)
                 }
-                if let temp = modelListComletion {
-                    let listResponse = try handleResponseData(isList: true, api: api, data: response)
-                    DispatchQueue.main.async {
-                        self.cacheData(api, data: response)
-                        temp(listResponse.1)
-                        self.showSuccess(api: api)
-                    }
-                }
-            } catch let NetworkError.serverResponse(message, code) {
-                showFail(api: api, message: message)
-                error?(NetworkError.serverResponse(message: message, code: code))
-            } catch let NetworkError.loginStateIsexpired(message) {
-                ElegantMoya.logoutClosure()
-                showFail(api: api, message: message)
-                error?(NetworkError.loginStateIsexpired(message: message))
-            } catch {
-                #if Debug
-                fatalError("unknown error")
-                #endif
             }
-        default:
-            ()
+            if let temp = modelListComletion {
+                let listResponse = try handleResponseData(isList: true, api: api, data: response)
+                DispatchQueue.main.async {
+                    self.cacheData(api, data: response)
+                    temp(listResponse.1)
+                    self.showSuccess(api: api)
+                }
+            }
+        } catch let NetworkError.serverResponse(message, code) {
+            showFail(api: api, message: message)
+            error?(NetworkError.serverResponse(message: message, code: code))
+        } catch let NetworkError.loginStateIsexpired(message) {
+            ElegantMoya.logoutClosure()
+            showFail(api: api, message: message)
+            error?(NetworkError.loginStateIsexpired(message: message))
+        } catch {
+            #if Debug
+            fatalError("unknown error")
+            #endif
         }
     }
 
@@ -258,24 +245,6 @@ private extension Network {
 
 /// 保证同一请求同一时间只请求一次
 private extension Network {
-    func isSameRequest<API: TargetType & MoyaAddable>(_ api: API) -> Bool {
-        switch api.task {
-        case let .requestParameters(parameters, _):
-            let key = api.path + parameters.description
-            var result: Bool!
-            barrierQueue.sync(flags: .barrier) {
-                result = fetchRequestKeys.contains(key)
-                if !result {
-                    fetchRequestKeys.append(key)
-                }
-            }
-            return result
-        default:
-            // 不会调用
-            return false
-        }
-    }
-
     func cleanRequest<API: TargetType & MoyaAddable>(_ api: API) {
         switch api.task {
         case let .requestParameters(parameters, _):

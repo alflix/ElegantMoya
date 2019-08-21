@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  CircleQ
+//  Ganguo
 //
 //  Created by John on 2019/6/11.
 //  Copyright © 2019 Ganguo. All rights reserved.
@@ -82,7 +82,9 @@ public class ListResponse<T>: BaseResponse where T: Codable {
                 do {
                     return try [T](from: jsonData)
                 } catch {
+                    #if Debug
                     fatalError("JSONSerialization error")
+                    #endif
                 }
             }
         } else {
@@ -90,7 +92,9 @@ public class ListResponse<T>: BaseResponse where T: Codable {
                 do {
                     return try [T](from: jsonData)
                 } catch {
+                    #if Debug
                     fatalError("JSONSerialization error")
+                    #endif
                 }
             }
         }
@@ -104,7 +108,11 @@ public class ListResponse<T>: BaseResponse where T: Codable {
         do {
             return try Pagination(from: pagination)
         } catch {
+            #if Debug
             fatalError("JSONSerialization error")
+            #else
+            return nil
+            #endif
         }
     }
 }
@@ -117,7 +125,11 @@ public class ModelResponse<T>: BaseResponse where T: Codable {
         do {
             return try T(from: tempJSONData)
         } catch {
+            #if Debug
             fatalError("JSONSerialization error")
+            #else
+            return nil
+            #endif
         }
     }
 }

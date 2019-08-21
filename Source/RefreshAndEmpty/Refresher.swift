@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import PullToRefreshKit
 
 public class Refresher: UIView, RefreshableHeader {
     private let circleLayer = CAShapeLayer()

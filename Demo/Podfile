@@ -9,8 +9,11 @@ target 'Demo' do
     pod 'FLEX'
 
     # Sources dependency
-    pod 'GGUI', :path => '~/Work/ganguo/Swift/DevelopPods/GGUI'
+    pod 'GGUI',                        :path => '~/Work/ganguo/Swift/DevelopPods/GGUI'
+    pod 'GGUI/MBProgressHUD',          :path => '~/Work/ganguo/Swift/DevelopPods/GGUI'
     pod 'Moya'
     pod 'Cache'
     pod 'PullToRefreshKit'
+    pod 'DZNEmptyDataSet'
+    
 end

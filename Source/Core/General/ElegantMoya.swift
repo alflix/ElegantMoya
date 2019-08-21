@@ -24,5 +24,4 @@ public struct ElegantMoya {
 
     /// 接口 401，AccountManager 需要处理下线 
     public static var logoutClosure: () -> Void = { }
-
 }
