@@ -1,6 +1,6 @@
 //
 //  NetworkError.swift
-//  Ganguo
+//  ElegantMoya
 //
 //  Created by John on 2019/6/11.
 //  Copyright © 2019 Ganguo. All rights reserved.
@@ -54,5 +54,19 @@ public extension NetworkError {
         default:
             return -1
         }
+    }
+
+    /// 处理错误信息
+    static func handleError(responseCode: Int, message: String?) throws {
+        switch responseCode {
+        case ResponseCode.forceLogoutError:
+            throw NetworkError.loginStateIsexpired(message: message)
+        default:
+            throw NetworkError.serverResponse(message: message, code: responseCode)
+        }
+    }
+
+    static func handleSuccess(responseCode: Int, message: String?) throws {
+
     }
 }
