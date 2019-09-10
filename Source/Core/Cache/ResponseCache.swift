@@ -1,6 +1,6 @@
 //
 //  ResponseCache.swift
-//  Ganguo
+//  ElegantMoya
 //
 //  Created by John on 2019/6/12.
 //  Copyright © 2019 Ganguo. All rights reserved.
@@ -54,9 +54,27 @@ public struct ResponseCache {
     }
 
     /// 清除 API 缓存
-    public func removeCache<T: MoyaAddable>(api: T) {
-        if let cacheKey = api.cacheKey {
-            try? responseStorage?.removeObject(forKey: cacheKey)
+    public func removeCache<T: ElegantMayaProtocol>(api: T) {
+        let cacheKey = ResponseCache.uniqueKey(api)
+        try? responseStorage?.removeObject(forKey: cacheKey)
+    }
+
+    static func cacheData<API: ElegantMayaProtocol>(_ api: API, data: Response) {
+        let cacheKey = ResponseCache.uniqueKey(api)
+        try? ResponseCache.shared.responseStorage?.setObject(data, forKey: cacheKey)
+    }
+
+    /// API 缓存的唯一码
+    static func uniqueKey<API: ElegantMayaProtocol>(_ api: API) -> String {
+        switch api.task {
+        case let .requestParameters(parameters, _):
+            return api.path + parameters.description
+        case let .requestCompositeData(bodyData, urlParameters):
+            return api.path + urlParameters.description + bodyData.hashValue.string
+        case let .requestCompositeParameters(bodyParameters, bodyEncoding, urlParameters):
+            return api.path + urlParameters.description + bodyParameters.description
+        default:
+            return api.path
         }
     }
 }
