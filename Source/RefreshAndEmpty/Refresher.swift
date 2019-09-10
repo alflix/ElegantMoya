@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import GGUI
 
 public class Refresher: UIView, RefreshableHeader {
     private let circleLayer = CAShapeLayer()

@@ -8,6 +8,7 @@
 
 import UIKit
 import DZNEmptyDataSet
+import GGUI
 
 /// 加载状态
 ///
@@ -72,7 +73,7 @@ open class NetworkViewController: UIViewController {
 public extension NetworkViewController {
     func endLoadData() {
         loadingState = .success
-        refreshScrollView?.reloadEmptyDataSet()
+        refreshScrollView?.reloadDataAnyway()
     }
 
     var isFirstPage: Bool {

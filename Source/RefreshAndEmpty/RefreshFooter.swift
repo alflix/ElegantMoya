@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import GGUI
 
 public class RefreshFooter: UIView, RefreshableFooter {
     private let spinner: UIActivityIndicatorView = UIActivityIndicatorView(style: .gray)
