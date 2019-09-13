@@ -65,8 +65,4 @@ public extension NetworkError {
             throw NetworkError.serverResponse(message: message, code: responseCode)
         }
     }
-
-    static func handleSuccess(responseCode: Int, message: String?) throws {
-
-    }
 }

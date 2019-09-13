@@ -70,13 +70,19 @@ private extension Network {
         -> Cancellable? {
             // 同一请求正在请求直接返回
             if isSameRequest(api) { return nil }
-            let successblock = { (shouldRevoke: Bool, response: Response) in
+            let successblock = { (isCache: Bool, shouldRevoke: Bool, response: Response) in
                 DispatchQueue.main.async {
                     if let temp = modelComletion {
-                        self.handleSuccessResponse(api, response: response, modelComletion: shouldRevoke ? temp : nil, error: error)
+                        self.handleSuccessResponse(api, response: response,
+                                                   isCache: isCache,
+                                                   modelComletion: shouldRevoke ? temp : nil,
+                                                   error: error)
                     }
                     if let temp = modelListComletion {
-                        self.handleSuccessResponse(api, response: response, modelListComletion: shouldRevoke ? temp : nil, error: error)
+                        self.handleSuccessResponse(api, response: response,
+                                                   isCache: isCache,
+                                                   modelListComletion: shouldRevoke ? temp : nil,
+                                                   error: error)
                     }
                 }
             }
@@ -90,7 +96,7 @@ private extension Network {
                 let cacheKey = ResponseCache.uniqueKey(api)
                 if let responseStorage = ResponseCache.shared.responseStorage,
                     let response = try? responseStorage.object(forKey: cacheKey) {
-                    successblock(true, response)
+                    successblock(true, true, response)
                     return true
                 }
                 return false
@@ -118,7 +124,7 @@ private extension Network {
                 switch response {
                 case .success(let response):
                     let shouldRevoke = (cachePolicy == .returnCacheDataAndFetchBackground && hasCache) ? false : true
-                    successblock(shouldRevoke, response)
+                    successblock(false, shouldRevoke, response)
                 case .failure:
                     errorblock(NetworkError.exception(message: ElegantMoya.ErrorMessage.server))
                 }
@@ -130,6 +136,7 @@ private extension Network {
     func handleSuccessResponse<API: ElegantMayaProtocol>(
         _ api: API,
         response: Response,
+        isCache: Bool,
         modelComletion: NetworkSuccessBlock<T>? = nil,
         modelListComletion: NetworkListSuccessBlock<T>? = nil,
         error: NetworkErrorBlock? = nil) {
@@ -138,7 +145,7 @@ private extension Network {
                 let modelResponse = try handleResponseData(isList: false, api: api, data: response)
                 DispatchQueue.main.async {
                     ResponseCache.cacheData(api, data: response)
-                    temp(modelResponse.0)
+                    temp(modelResponse.0, isCache)
                     ShowHudHelper.showSuccess(api: api)
                 }
             }
@@ -146,7 +153,7 @@ private extension Network {
                 let listResponse = try handleResponseData(isList: true, api: api, data: response)
                 DispatchQueue.main.async {
                     ResponseCache.cacheData(api, data: response)
-                    temp(listResponse.1)
+                    temp(listResponse.1, isCache)
                     ShowHudHelper.showSuccess(api: api)
                 }
             }

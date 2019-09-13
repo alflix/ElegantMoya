@@ -33,6 +33,6 @@ Pod::Spec.new do |s|
 	    ss.dependency      'ElegantMoya/Core'
 	    ss.dependency      'GGUI/PullToRefreshKit'
 	    ss.dependency      'DZNEmptyDataSet'
-	    ss.source_files  = 'Source/RefreshAndEmpty/*.swift'
+	    ss.source_files  = 'Source/RefreshAndEmpty/**/*.swift'
 	end
 end

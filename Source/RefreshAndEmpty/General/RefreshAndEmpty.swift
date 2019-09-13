@@ -20,7 +20,7 @@ public struct RefreshAndEmpty {
         public static var titleAttributes: () -> [NSAttributedString.Key: Any] = {
             let paragraphStyle = NSMutableParagraphStyle()
             paragraphStyle.alignment = .center
-            let attributes: [NSAttributedString.Key: Any] = [.paragraphStyle: paragraphStyle, .foregroundColor: UIColor.black, .font: UIFont.systemFontSize]
+            let attributes: [NSAttributedString.Key: Any] = [.paragraphStyle: paragraphStyle, .foregroundColor: UIColor.black, .font: UIFont.systemFont(ofSize: 14)]
             return attributes
         }
     }

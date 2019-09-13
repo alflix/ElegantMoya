@@ -11,14 +11,10 @@ import GGUI
 open class NetworkViewModelsViewController<T>: NetworkViewController where T: Codable {
     public var dataSource: [ViewModel<T>] = []
 
-    override open func viewDidLoad() {
-        super.viewDidLoad()
-    }
-
     public func handleData(page: Pagination?) {
         if isFirstPage { dataSource = [] }
         updateRefreshStateAndChangePage(pagination: page)
-        endLoadData()
+        endLoadDataSuccesslly()
     }
 
     public func handle(page: Pagination?, datas: [T], transform: ((T)->ViewModel<T>)? = nil) {
@@ -29,18 +25,20 @@ open class NetworkViewModelsViewController<T>: NetworkViewController where T: Co
         } else {
             dataSource.append(contentsOf: datas.map { ViewModel<T>(model: $0) })
         }
-        endLoadData()
+        endLoadDataSuccesslly()
     }
 
     public func requestList<API: ElegantMayaProtocol>(api: API,
                                                       transform: ((T)->ViewModel<T>)? = nil,
                                                       completion: NetworkListSuccessBlock<T>? = nil) {
-        Network<T>().requestList(api, completion: { [weak self] (response) in
+        Network<T>().requestList(api, completion: { [weak self] (response, isCache) in
             guard let strongSelf = self, let datas = response?.datas else { return }
-            strongSelf.handle(page: response?.page, datas: datas, transform: transform)
-            completion?(response)
+            if !isCache {
+                strongSelf.handle(page: response?.page, datas: datas, transform: transform)
+            }
+            completion?(response, isCache)
         }) { [weak self] (_) in
-            self?.endRefresher()
+            self?.endLoadDataFail()
         }
     }
 }

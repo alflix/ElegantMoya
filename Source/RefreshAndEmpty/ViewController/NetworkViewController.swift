@@ -13,7 +13,7 @@ import GGUI
 /// 加载状态
 ///
 /// - before: 不显示占位图
-/// - loading: 不显示占位图（可以配置显示 loading）
+/// - loading: 不显示占位图（这个状态暂时和 before 一样）
 /// - success: 可显示占位图
 /// - fail: 可显示网络错误视图
 public enum LoadingState {
@@ -49,7 +49,7 @@ open class NetworkViewController: UIViewController {
         #if DEBUG
         assert(false, "must override refreshScrollView ")
         #endif
-        return UIScrollView()
+        return nil
     }
 
     /// 第几页
@@ -71,13 +71,41 @@ open class NetworkViewController: UIViewController {
 }
 
 public extension NetworkViewController {
-    func endLoadData() {
+    /// 加载第一页
+    @objc func loadFirstPage() {
+        page = RefreshAndEmpty.PageSetting.firstPage
+        loadData()
+    }
+
+    /// 加载成功调用, 会自动调用 reloadData()
+    func endLoadDataSuccesslly() {
         loadingState = .success
         refreshScrollView?.reloadDataAnyway()
     }
 
+    /// 加载失败调用
+    func endLoadDataFail() {
+        loadingState = .fail
+        updateRefresherState(hasNextPage: false)
+        refreshScrollView?.switchRefreshFooter(to: .removed)
+    }
+
     var isFirstPage: Bool {
         return page == RefreshAndEmpty.PageSetting.firstPage
+    }
+
+    /// 更新刷新状态，并修改 page 的值
+    func updateRefreshStateAndChangePage(pagination: Pagination?) {
+        guard let pagination = pagination else {
+            updateRefresherState(hasNextPage: false)
+            return
+        }
+        if pagination.last > pagination.page {
+            page = (page ?? RefreshAndEmpty.PageSetting.firstPage) + 1
+        } else {
+            page = pagination.page
+        }
+        updateRefresherState(hasNextPage: pagination.last > pagination.page)
     }
 }
 
@@ -91,51 +119,24 @@ public extension NetworkViewController {
     /// 设置下拉刷新
     func setupRefreshHeader() {
         refreshScrollView?.configRefreshHeader(with: Refresher(), container: self) { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.loadFirstPage()
+            self?.loadFirstPage()
         }
     }
 
     /// 设置上拉加载
     func setupRefreshFooter() {
         refreshScrollView?.configRefreshFooter(with: RefreshFooter(), container: self) { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.loadData()
+            self?.loadData()
         }
-    }
-
-    @objc func loadFirstPage() {
-        page = RefreshAndEmpty.PageSetting.firstPage
-        loadData()
-    }
-
-    /// 更新刷新状态，并修改 page 的值
-    func updateRefreshStateAndChangePage(pagination: Pagination?) {
-        guard let pagination = pagination else { return }
-        if pagination.last > pagination.page {
-            page = (page ?? RefreshAndEmpty.PageSetting.firstPage) + 1
-        } else {
-            page = pagination.page
-        }
-        updateRefreshState(pagination: pagination)
-    }
-
-    /// 更新刷新状态
-    func updateRefreshState(pagination: Pagination) {
-        updateRefresherState(hasNextPage: pagination.last > pagination.page)
     }
 
     /// 开始下拉刷新
     func beginHeaderRefresher() {
         refreshScrollView?.switchRefreshHeader(to: .refreshing)
     }
+}
 
-    /// 结束刷新
-    func endRefresher() {
-        updateRefresherState(hasNextPage: false)
-        refreshScrollView?.switchRefreshFooter(to: .removed)
-    }
-
+extension NetworkViewController {
     /// 更新下拉刷新器和上拉加载器状态
     ///
     /// - Parameter hasNextPage: 是否有下一页

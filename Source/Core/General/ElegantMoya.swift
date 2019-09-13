@@ -10,8 +10,8 @@ import Foundation
 import Moya
 
 public typealias ResponseSuccessBlock = (Response) -> Void
-public typealias NetworkSuccessBlock<T: Codable> = (ModelResponse<T>?) -> Void
-public typealias NetworkListSuccessBlock<T: Codable> = (ListResponse<T>?) -> Void
+public typealias NetworkSuccessBlock<T: Codable> = (ModelResponse<T>?, _ isCache: Bool) -> Void
+public typealias NetworkListSuccessBlock<T: Codable> = (ListResponse<T>?, _ isCache: Bool) -> Void
 public typealias NetworkErrorBlock = (NetworkError) -> Void
 public typealias ElegantMayaProtocol = TargetType & MoyaAddable
 
