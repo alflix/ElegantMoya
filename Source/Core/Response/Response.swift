@@ -23,7 +23,7 @@ public struct Pagination: Codable {
         var parameters: [String: Any] = [:]
         if let page = page {
             parameters["page"] = page
-            parameters["size"] = 20
+            parameters["size"] = ElegantMoya.pageSize
         }
         return parameters
     }
@@ -31,7 +31,7 @@ public struct Pagination: Codable {
     static public func pageParameters(originalParameters: inout [String: Any], page: Int?) {
         if let page = page {
             originalParameters["page"] = page
-            originalParameters["size"] = 20
+            originalParameters["size"] = ElegantMoya.pageSize
         }
     }
 }
