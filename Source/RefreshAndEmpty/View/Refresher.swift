@@ -13,6 +13,8 @@ public class Refresher: UIView, RefreshableHeader {
     private let circleLayer = CAShapeLayer()
     private let strokeColor = UIColor(red: 221.0/255.0, green: 221.0/255.0, blue: 221.0/255.0, alpha: 1.0)
 
+    public var adjustOffset: CGFloat = 0
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         setUpCircleLayer()
@@ -43,6 +45,10 @@ public class Refresher: UIView, RefreshableHeader {
         circleLayer.bounds = CGRect(x: 0, y: 0, width: 22, height: 22)
         circleLayer.anchorPoint = CGPoint(x: 0.5, y: 0.5)
         layer.addSublayer(circleLayer)
+    }
+
+    public func adjustOffsetForHeader() -> CGFloat {
+        return adjustOffset
     }
 
     /// MARK: - RefreshableHeader -

@@ -26,7 +26,7 @@ public extension MoyaAddable {
     }
 
     var isShowHud: Bool {
-        return false
+        return true
     }
 
     var successMessage: String? {

@@ -27,6 +27,12 @@ public enum LoadingState {
     case fail
 }
 
+public enum RefreshType {
+    case header
+    case footer
+    case headerAndFooter
+}
+
 open class NetworkViewController: UIViewController {
     /// 占位文字 optional override
     open var emptyTitle: String {
@@ -42,6 +48,16 @@ open class NetworkViewController: UIViewController {
             fatalError("must override this variable or DefaultSetting.emptyImage must not be nil")
         }
         return emptyImage
+    }
+
+    /// 设置刷新类型，默认头部和底部
+    open var refreshType: RefreshType {
+        return .headerAndFooter
+    }
+
+    /// 头部头部控件需要调整的距离
+    open var adjustOffsetForHeader: CGFloat {
+        return 0
     }
 
     /// 显示占位的父视图 must override
@@ -92,7 +108,7 @@ public extension NetworkViewController {
     }
 
     var isFirstPage: Bool {
-        return page == RefreshAndEmpty.PageSetting.firstPage
+        return page == Pagination.PageSetting.firstPage
     }
 
     /// 更新刷新状态，并修改 page 的值
@@ -102,7 +118,7 @@ public extension NetworkViewController {
             return
         }
         if pagination.last > pagination.page {
-            page = (page ?? RefreshAndEmpty.PageSetting.firstPage) + 1
+            page = (page ?? Pagination.PageSetting.firstPage) + 1
         } else {
             page = pagination.page
         }
@@ -113,13 +129,22 @@ public extension NetworkViewController {
 public extension NetworkViewController {
     /// 设置下拉刷新和上拉加载
     func setupRefresh() {
-        setupRefreshHeader()
-        setupRefreshFooter()
+        switch refreshType {
+        case .header:
+            setupRefreshHeader(adjustOffset: adjustOffsetForHeader)
+        case .footer:
+            setupRefreshFooter()
+        case .headerAndFooter:
+            setupRefreshHeader(adjustOffset: adjustOffsetForHeader)
+            setupRefreshFooter()
+        }
     }
 
     /// 设置下拉刷新
-    func setupRefreshHeader() {
-        refreshScrollView?.configRefreshHeader(with: Refresher(), container: self) { [weak self] in
+    func setupRefreshHeader(adjustOffset: CGFloat = 0) {
+        let refresher = Refresher()
+        refresher.adjustOffset = adjustOffset
+        refreshScrollView?.configRefreshHeader(with: refresher, container: self) { [weak self] in
             self?.loadFirstPage()
         }
     }
