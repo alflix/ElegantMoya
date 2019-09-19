@@ -17,9 +17,16 @@ open class NetworkViewModelsViewController<T>: NetworkViewController where T: Co
         endLoadDataSuccesslly()
     }
 
-    public func handle(page: Pagination?, datas: [T], transform: ((T)->ViewModel<T>)? = nil) {
+    public func handle(page: Pagination, isCache: Bool, datas: [T], transform: ((T)->ViewModel<T>)? = nil) {
+        // 第一页，清空数据
         if isFirstPage { dataSource = [] }
-        updateRefreshStateAndChangePage(pagination: page)
+        if !isCache {
+            updateRefreshStateAndChangePage(pagination: page)
+        }
+        if page.page > Pagination.PageSetting.firstPage && isCache {
+            // 大于第一页的缓存数据不处理
+            return
+        }
         if let transform = transform {
             dataSource.append(contentsOf: datas.map(transform))
         } else {
@@ -33,9 +40,10 @@ open class NetworkViewModelsViewController<T>: NetworkViewController where T: Co
                                                       completion: NetworkListSuccessBlock<T>? = nil) {
         Network<T>().requestList(api, completion: { [weak self] (response, isCache) in
             guard let strongSelf = self, let datas = response?.datas else { return }
-            if !isCache {
-                strongSelf.handle(page: response?.page, datas: datas, transform: transform)
-            }
+            strongSelf.handle(page: response?.page ?? Pagination(page: Pagination.PageSetting.firstPage, size: Pagination.PageSetting.pageSize, last: 0, total: 0),
+                              isCache: isCache,
+                              datas: datas,
+                              transform: transform)
             completion?(response, isCache)
         }) { [weak self] (_) in
             self?.endLoadDataFail()

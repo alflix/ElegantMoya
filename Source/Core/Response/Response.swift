@@ -23,7 +23,7 @@ public struct Pagination: Codable {
         var parameters: [String: Any] = [:]
         if let page = page {
             parameters["page"] = page
-            parameters["size"] = ElegantMoya.pageSize
+            parameters["size"] = PageSetting.pageSize
         }
         return parameters
     }
@@ -31,8 +31,16 @@ public struct Pagination: Codable {
     static public func pageParameters(originalParameters: inout [String: Any], page: Int?) {
         if let page = page {
             originalParameters["page"] = page
-            originalParameters["size"] = ElegantMoya.pageSize
+            originalParameters["size"] = PageSetting.pageSize
         }
+    }
+
+    /// 分页设置
+    public enum PageSetting {
+        /// 第一页
+        public static var firstPage: Int = 1
+        /// 页数
+        public static var pageSize: Int = 20
     }
 }
 

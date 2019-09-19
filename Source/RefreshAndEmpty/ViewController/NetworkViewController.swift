@@ -53,7 +53,7 @@ open class NetworkViewController: UIViewController {
     }
 
     /// 第几页
-    public var page: Int? = RefreshAndEmpty.PageSetting.firstPage
+    public var page: Int = Pagination.PageSetting.firstPage
     /// 加载状态
     public var loadingState: LoadingState = .before
 
@@ -73,13 +73,14 @@ open class NetworkViewController: UIViewController {
 public extension NetworkViewController {
     /// 加载第一页
     @objc func loadFirstPage() {
-        page = RefreshAndEmpty.PageSetting.firstPage
+        page = Pagination.PageSetting.firstPage
         loadData()
     }
 
     /// 加载成功调用, 会自动调用 reloadData()
     func endLoadDataSuccesslly() {
         loadingState = .success
+        refreshScrollView?.switchRefreshHeader(to: .normal(.none, 0.0))
         refreshScrollView?.reloadDataAnyway()
     }
 

@@ -24,9 +24,4 @@ public struct RefreshAndEmpty {
             return attributes
         }
     }
-
-    /// 分页设置
-    public enum PageSetting {
-        public static var firstPage: Int = 1
-    }
 }
