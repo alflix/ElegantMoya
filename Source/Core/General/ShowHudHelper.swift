@@ -7,31 +7,36 @@
 
 import UIKit
 import Moya
+import MBProgressHUDGanguo
 
-struct ShowHudHelper {
-    static func showLoading<API: ElegantMayaProtocol>(api: API) {
-        if api.isShowHud, let window = UIApplication.shared.windows.first {
-            window.showLoadingHud()
+public struct ShowHudHelper {
+    static func showLoading<API: ElegantMayaProtocol>(api: API, view: UIView? = nil) {
+        guard api.isShowHud else { return }
+        if let view = view ?? UIApplication.shared.windows.first {
+            view.showLoadingHud(autoHide: false)
         }
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
     }
 
-    static func hideLoading<API: ElegantMayaProtocol>(api: API) {
-        if api.isShowHud, let window = UIApplication.shared.windows.first {
-            window.hideHud()
+    static func hideLoading<API: ElegantMayaProtocol>(api: API, view: UIView? = nil) {
+        guard api.isShowHud else { return }
+        if let view = view ?? UIApplication.shared.windows.first {
+            view.hideHud()
         }
         UIApplication.shared.isNetworkActivityIndicatorVisible = false
     }
 
-    static func showSuccess<API: ElegantMayaProtocol>(api: API) {
-        if api.isShowHud, let message = api.successMessage, let window = UIApplication.shared.windows.first {
-            window.showSuccessHud(title: message)
+    static func showSuccess<API: ElegantMayaProtocol>(api: API, view: UIView? = nil) {
+        if let view = view ?? UIApplication.shared.windows.first, let message = api.successMessage {
+            view.hideHud()
+            view.showSuccessHud(title: message)
         }
     }
 
-    static func showFail<API: ElegantMayaProtocol>(api: API, message: String?) {
-        if api.isShowHud, let window = UIApplication.shared.windows.first {
-            window.showFailHud(title: message ?? ElegantMoya.ErrorMessage.networt)
+    static func showFail<API: ElegantMayaProtocol>(api: API, message: String?, view: UIView? = nil) {
+        if let view = view ?? UIApplication.shared.windows.first, let message = message {
+            view.hideHud()
+            view.showFailHud(title: message ?? ElegantMoya.ErrorMessage.networt)
         }
     }
 }

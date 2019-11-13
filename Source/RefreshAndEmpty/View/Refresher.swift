@@ -3,11 +3,11 @@
 //  Matters
 //
 //  Created by John on 2019/1/13.
-//  Copyright © 2019 Ganguo. All rights reserved.
+//  Copyright © 2019 ElegantMoya. All rights reserved.
 //
 
 import UIKit
-import GGUI
+import PullToRefreshKit
 
 public class Refresher: UIView, RefreshableHeader {
     private let circleLayer = CAShapeLayer()
@@ -26,7 +26,7 @@ public class Refresher: UIView, RefreshableHeader {
 
     override public func layoutSubviews() {
         super.layoutSubviews()
-        circleLayer.position = CGPoint(x: width/2, y: height/2 + 14)
+        circleLayer.position = CGPoint(x: bounds.width/2, y: bounds.height/2 + 14)
     }
 
     func setUpCircleLayer() {

@@ -1,14 +1,13 @@
 //
 //  NetworkViewController.swift
-//  Ganguo
+//  ElegantMoya
 //
 //  Created by John on 2019/7/10.
-//  Copyright © 2019 Ganguo. All rights reserved.
+//  Copyright © 2019 ElegantMoya. All rights reserved.
 //
 
 import UIKit
 import DZNEmptyDataSet
-import GGUI
 
 /// 加载状态
 ///
@@ -34,6 +33,9 @@ public enum RefreshType {
 }
 
 open class NetworkViewController: UIViewController {
+    /// 加载数据失败后显示的视图
+    private var loadFailedView: UIView?
+
     /// 占位文字 optional override
     open var emptyTitle: String {
         guard let emptyTitle = RefreshAndEmpty.DefaultSetting.emptyTitle else {
@@ -45,7 +47,7 @@ open class NetworkViewController: UIViewController {
     /// 占位图片 optional override
     open var emptyImage: UIImage {
         guard let emptyImage = RefreshAndEmpty.DefaultSetting.emptyImage else {
-            fatalError("must override this variable or DefaultSetting.emptyImage must not be nil")
+            return UIImage()
         }
         return emptyImage
     }
@@ -60,6 +62,11 @@ open class NetworkViewController: UIViewController {
         return 0
     }
 
+    /// 刷新到最后一页时显示的文字
+    open var noMoreDataText: String? {
+        return nil
+    }
+
     /// 显示占位的父视图 must override
     open var refreshScrollView: UIScrollView? {
         #if DEBUG
@@ -72,6 +79,9 @@ open class NetworkViewController: UIViewController {
     public var page: Int = Pagination.PageSetting.firstPage
     /// 加载状态
     public var loadingState: LoadingState = .before
+
+    /// 是否是最后一页
+    public var isLastPage: Bool = true
 
     /// must override
     open func loadData() {
@@ -100,11 +110,12 @@ public extension NetworkViewController {
         refreshScrollView?.reloadDataAnyway()
     }
 
-    /// 加载失败调用
-    func endLoadDataFail() {
+    /// 加载失败调用(是否显示加载数据失败后的视图，默认显示)
+    func endLoadDataFail(isShow: Bool = true) {
         loadingState = .fail
         updateRefresherState(hasNextPage: false)
         refreshScrollView?.switchRefreshFooter(to: .removed)
+        setupLoadFailedView(isShow: isShow)
     }
 
     var isFirstPage: Bool {
@@ -112,9 +123,11 @@ public extension NetworkViewController {
     }
 
     /// 更新刷新状态，并修改 page 的值
-    func updateRefreshStateAndChangePage(pagination: Pagination?) {
+    func updateRefreshStateAndChangePage(pagination: Pagination?, isCache: Bool) {
         guard let pagination = pagination else {
-            updateRefresherState(hasNextPage: false)
+            if !isCache {
+                updateRefresherState(hasNextPage: false)
+            }
             return
         }
         if pagination.last > pagination.page {
@@ -122,7 +135,9 @@ public extension NetworkViewController {
         } else {
             page = pagination.page
         }
-        updateRefresherState(hasNextPage: pagination.last > pagination.page)
+        if !isCache {
+            updateRefresherState(hasNextPage: pagination.last > pagination.page)
+        }
     }
 }
 
@@ -151,7 +166,9 @@ public extension NetworkViewController {
 
     /// 设置上拉加载
     func setupRefreshFooter() {
-        refreshScrollView?.configRefreshFooter(with: RefreshFooter(), container: self) { [weak self] in
+        let footer = RefreshFooter()
+        footer.textLabel.text = noMoreDataText
+        refreshScrollView?.configRefreshFooter(with: footer, container: self) { [weak self] in
             self?.loadData()
         }
     }
@@ -166,15 +183,70 @@ extension NetworkViewController {
     /// 更新下拉刷新器和上拉加载器状态
     ///
     /// - Parameter hasNextPage: 是否有下一页
-    private func updateRefresherState(hasNextPage: Bool) {
+    public func updateRefresherState(hasNextPage: Bool) {
+        isLastPage = !hasNextPage
         refreshScrollView?.switchRefreshFooter(to: hasNextPage ? .normal : .noMoreData)
         refreshScrollView?.switchRefreshHeader(to: .normal(.none, 0.0))
+    }
+
+    /// 是否显示加载数据失败后的视图
+    private func setupLoadFailedView(isShow: Bool) {
+        if !isShow || loadFailedView != nil {
+            loadFailedView?.alpha = 1
+            return
+        }
+        guard let loadFailedView = RefreshAndEmpty.DefaultSetting.loadFailedClosure({ [weak self] in
+            self?.loadFailedView?.alpha = 1
+            UIView.animate(withDuration: 0.3, animations: {
+                self?.loadFailedView?.alpha = 0
+            }, completion: { (_) in
+                self?.loadData()
+            })
+        }) else { return }
+        self.loadFailedView = loadFailedView
+        view.addSubview(loadFailedView)
+        view.bringSubviewToFront(loadFailedView)
+        if !(view is UITableView) {
+            loadFailedView.translatesAutoresizingMaskIntoConstraints = false
+        }
+
+        view.addConstraint(NSLayoutConstraint(item: loadFailedView,
+                                              attribute: .top,
+                                              relatedBy: .equal,
+                                              toItem: view,
+                                              attribute: .top,
+                                              multiplier: 1,
+                                              constant: 0))
+
+        view.addConstraint(NSLayoutConstraint(item: loadFailedView,
+                                              attribute: .left,
+                                              relatedBy: .equal,
+                                              toItem: view,
+                                              attribute: .left,
+                                              multiplier: 1,
+                                              constant: 0))
+
+        view.addConstraint(NSLayoutConstraint(item: loadFailedView,
+                                              attribute: .right,
+                                              relatedBy: .equal,
+                                              toItem: view,
+                                              attribute: .right,
+                                              multiplier: 1,
+                                              constant: 0))
+
+        view.addConstraint(NSLayoutConstraint(item: loadFailedView,
+                                              attribute: .bottom,
+                                              relatedBy: .equal,
+                                              toItem: view,
+                                              attribute: .bottom,
+                                              multiplier: 1,
+                                              constant: 0))
     }
 }
 
 extension NetworkViewController: DZNEmptyDataSetSource & DZNEmptyDataSetDelegate {
     public func title(forEmptyDataSet scrollView: UIScrollView!) -> NSAttributedString! {
-        return NSAttributedString(string: emptyTitle, attributes: RefreshAndEmpty.DefaultSetting.titleAttributes())
+        return NSAttributedString(string: emptyTitle, attributes: RefreshAndEmpty.DefaultSetting.titleAttributes)
     }
 
     public func image(forEmptyDataSet scrollView: UIScrollView!) -> UIImage! {
@@ -182,7 +254,10 @@ extension NetworkViewController: DZNEmptyDataSetSource & DZNEmptyDataSetDelegate
     }
 
     public func verticalOffset(forEmptyDataSet scrollView: UIScrollView!) -> CGFloat {
-        return view.height/RefreshAndEmpty.DefaultSetting.verticalOffsetProportion
+        if let verticalOffsetProportion = RefreshAndEmpty.DefaultSetting.verticalOffsetProportion {
+            return view.bounds.height/verticalOffsetProportion
+        }
+        return 0
     }
 
     public func emptyDataSetShouldAllowScroll(_ scrollView: UIScrollView!) -> Bool {

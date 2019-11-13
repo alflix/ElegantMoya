@@ -3,93 +3,58 @@
 //  ElegantMoya
 //
 //  Created by John on 2019/6/11.
-//  Copyright © 2019 Ganguo. All rights reserved.
+//  Copyright © 2019 ElegantMoya. All rights reserved.
 //
 
 import Foundation
 import Moya
-import Cache
-import GGUI
 
 /// T: Response -> Model 的泛型
 public class Network<T> where T: Codable {
     public init() { }
 
-    /// 请求普通接口
-    ///
+    /// 请求接口
     /// - Parameters:
     ///   - api: 根据Moya定义的接口
+    ///   - view: api 所在请求的页面，用于显示 hud， 为空的话在 UIWindow 上调用（会卡住用户操作）
     ///   - completion: 结束返回数据闭包(缓存策略会影响闭包的调用时机和顺序)
-    ///   - error: 错误信息返回闭包
+    ///   - error: 错误返回闭包
     /// - Returns: 可以用来取消请求
     @discardableResult
     public func request<API: ElegantMayaProtocol>(
         _ api: API,
+        in view: UIView? = nil,
         completion: NetworkSuccessBlock<T>? = nil,
-        error: NetworkErrorBlock? = nil)
+        errorBlock: NetworkErrorBlock? = nil)
         -> Cancellable? {
-            return request(api, modelComletion: completion, error: error)
-    }
-
-    /// 请求列表接口
-    ///
-    /// - Parameters:
-    ///   - api: 根据Moya定义的接口
-    ///   - completion: 结束返回数据闭包(缓存策略会影响闭包的调用时机和顺序)
-    ///   - error: 错误信息返回闭包
-    /// - Returns: 可以用来取消请求
-    @discardableResult
-    public func requestList<API: ElegantMayaProtocol>(
-        _ api: API,
-        completion: NetworkListSuccessBlock<T>? = nil,
-        error: NetworkErrorBlock? = nil)
-        -> Cancellable? {
-            return request(api, modelListComletion: completion, error: error)
+            return request(api, in: view, comletion: completion, errorBlock: errorBlock)
     }
 
     // 用来处理只请求一次的栅栏队列
-    private let barrierQueue = DispatchQueue(label: "hk.ganguo.Network", attributes: .concurrent)
+    private let barrierQueue = DispatchQueue(label: "com.Network.ElegantMoya", attributes: .concurrent)
     // 用来处理只请求一次的数组,保存请求的信息 唯一
     private var fetchRequestKeys = [String]()
 }
 
 private extension Network {
     /// 请求基类方法
-    ///
     /// - Parameters:
     ///   - api: 根据Moya定义的接口
-    ///   - modelComletion: 普通接口返回数据闭包
-    ///   - modelListComletion: 列表接口返回数据闭包
-    ///   - error: 错误信息返回闭包
-    /// - Returns: 可以用来取消请求
+    ///   - view: api 所在请求的页面，用于显示 hud， 为空的话在 UIWindow 上调用（会卡住用户操作）
+    ///   - comletion: 返回数据闭包
+    ///   - errorBlock: 错误信息返回闭包
     func request<API: ElegantMayaProtocol>(
         _ api: API,
-        modelComletion: NetworkSuccessBlock<T>? = nil,
-        modelListComletion: NetworkListSuccessBlock<T>? = nil,
-        error: NetworkErrorBlock? = nil)
+        in view: UIView? = nil,
+        comletion: NetworkSuccessBlock<T>? = nil,
+        errorBlock: NetworkErrorBlock? = nil)
         -> Cancellable? {
             // 同一请求正在请求直接返回
             if isSameRequest(api) { return nil }
-            let successblock = { (isCache: Bool, shouldRevoke: Bool, response: Response) in
+            let successblock = { (isFromCache: Bool, shouldRevoke: Bool, response: Response) in
                 DispatchQueue.main.async {
-                    if let temp = modelComletion {
-                        self.handleSuccessResponse(api, response: response,
-                                                   isCache: isCache,
-                                                   modelComletion: shouldRevoke ? temp : nil,
-                                                   error: error)
-                    }
-                    if let temp = modelListComletion {
-                        self.handleSuccessResponse(api, response: response,
-                                                   isCache: isCache,
-                                                   modelListComletion: shouldRevoke ? temp : nil,
-                                                   error: error)
-                    }
-                }
-            }
-            let errorblock = { (networkError: NetworkError) in
-                DispatchQueue.main.async {
-                    ShowHudHelper.showFail(api: api, message: networkError.message)
-                    error?(networkError)
+                    self.handleSuccessResponse(api, in: view, response: response, isFromCache: isFromCache,
+                                               comletion: shouldRevoke ? comletion : nil, errorBlock: errorBlock)
                 }
             }
             let checkIfCache: () -> Bool = {
@@ -101,9 +66,8 @@ private extension Network {
                 }
                 return false
             }
-            let provider = ElegantMoya.createProvider(api: api)
-            var hasCache = false
 
+            var hasCache = false
             let cachePolicy = api.cachePolicy ?? .fetchIgnoringCacheData
             switch cachePolicy {
             case .returnCacheDataAndFetch:
@@ -118,15 +82,18 @@ private extension Network {
                 hasCache = checkIfCache()
                 return nil
             }
+            let fetchBackground = (cachePolicy == .returnCacheDataAndFetchBackground && hasCache)
+            let provider = ElegantMoya.createProvider(api: api, showLoading: !fetchBackground, in: view)
             let cancellable = provider.request(api, callbackQueue: .global()) { (response) in
                 // 请求完成移除
                 self.cleanRequest(api)
                 switch response {
                 case .success(let response):
-                    let shouldRevoke = (cachePolicy == .returnCacheDataAndFetchBackground && hasCache) ? false : true
+                    let shouldRevoke = !fetchBackground
                     successblock(false, shouldRevoke, response)
-                case .failure:
-                    errorblock(NetworkError.exception(message: ElegantMoya.ErrorMessage.server))
+                case .failure(let error):
+                    ShowHudHelper.showFail(api: api, message: error.errorDescription, view: view)
+                    errorBlock?(NetworkError.moya(error))
                 }
             }
             return cancellable
@@ -135,65 +102,78 @@ private extension Network {
     /// 处理成功的返回(业务上不一定是成功)
     func handleSuccessResponse<API: ElegantMayaProtocol>(
         _ api: API,
+        in view: UIView? = nil,
         response: Response,
-        isCache: Bool,
-        modelComletion: NetworkSuccessBlock<T>? = nil,
-        modelListComletion: NetworkListSuccessBlock<T>? = nil,
-        error: NetworkErrorBlock? = nil) {
+        isFromCache: Bool,
+        comletion: NetworkSuccessBlock<T>? = nil,
+        errorBlock: NetworkErrorBlock? = nil) {
         do {
-            if let temp = modelComletion {
-                let modelResponse = try handleResponseData(isList: false, api: api, data: response)
-                DispatchQueue.main.async {
-                    ResponseCache.cacheData(api, data: response)
-                    temp(modelResponse.0, isCache)
-                    ShowHudHelper.showSuccess(api: api)
-                }
+            try response.filterSuccessfulStatusCodes()
+            let json = try response.mapJSON()
+            guard let responseBody = ResponseObject<T>(json: json) else {
+                throw MoyaError.jsonMapping(response)
             }
-            if let temp = modelListComletion {
-                let listResponse = try handleResponseData(isList: true, api: api, data: response)
-                DispatchQueue.main.async {
-                    ResponseCache.cacheData(api, data: response)
-                    temp(listResponse.1, isCache)
-                    ShowHudHelper.showSuccess(api: api)
-                }
+            if responseBody.code != ElegantMoya.ResponseCode.success {
+                errorBlock?(NetworkError.response(responseBody))
+                ShowHudHelper.showFail(api: api, message: responseBody.message ?? ElegantMoya.ErrorMessage.networt, view: view)
+                return
             }
-        } catch let NetworkError.serverResponse(message, code) {
-            ShowHudHelper.showFail(api: api, message: message)
-            error?(NetworkError.serverResponse(message: message, code: code))
-        } catch let NetworkError.loginStateIsexpired(message) {
-            ElegantMoya.logoutClosure()
-            ShowHudHelper.showFail(api: api, message: message)
-            error?(NetworkError.loginStateIsexpired(message: message))
+            if !isFromCache && api.cachePolicy != .fetchIgnoringCacheData {
+                ResponseCache.cacheData(api, data: response)
+            }
+            ShowHudHelper.showSuccess(api: api, view: view)
+            if responseBody.isArray {
+                if let data = responseBody.dataContent as? [Any] {
+                    let keyPath = ElegantMoya.DataMapKeyPath.data + "." + ElegantMoya.DataMapKeyPath.content
+                    let models = try response.map([T].self, atKeyPath: keyPath, using: jsonDeoder)
+                    let page = try response.map(Pagination.self, atKeyPath: ElegantMoya.DataMapKeyPath.pagination, using: jsonDeoder)
+                    responseBody.models = models
+                    responseBody.page = page
+                    comletion?(responseBody, isFromCache)
+                } else {
+                    let models = try response.map([T].self, atKeyPath: ElegantMoya.DataMapKeyPath.data, using: jsonDeoder)
+                    responseBody.models = models
+                    comletion?(responseBody, isFromCache)
+                }
+            } else {
+                let model = try response.map(T.self, atKeyPath: ElegantMoya.DataMapKeyPath.data, using: jsonDeoder)
+                responseBody.model = model
+                comletion?(responseBody, isFromCache)
+            }
+        } catch let MoyaError.statusCode(response) {
+            errorBlock?(NetworkError.moya(MoyaError.statusCode(response)))
+            if (500...599).contains(response.statusCode) {
+                ShowHudHelper.showFail(api: api, message: ElegantMoya.ErrorMessage.server, view: view)
+                return
+            }
+            if response.statusCode == HTTPStatusCode.unauthorized.rawValue {
+                ShowHudHelper.showFail(api: api, message: ElegantMoya.ErrorMessage.unauthorized, view: view)
+                ElegantMoya.logoutClosure()
+            }
+        } catch let MoyaError.jsonMapping(response) {
+            errorBlock?(NetworkError.moya(MoyaError.jsonMapping(response)))
+            ShowHudHelper.showFail(api: api, message: ElegantMoya.ErrorMessage.serialization, view: view)
+        } catch let MoyaError.objectMapping(error, response) {
+            errorBlock?(NetworkError.moya(MoyaError.objectMapping(error, response)))
+            ShowHudHelper.showFail(api: api, message: ElegantMoya.ErrorMessage.serialization, view: view)
         } catch {
             #if Debug
-            fatalError("unknown error")
+            fatalError("unkwnow error")
             #endif
         }
     }
 
-    /// 处理数据
-    func handleResponseData<API: ElegantMayaProtocol>(isList: Bool, api: API, data: Response)
-        throws -> (ModelResponse<T>?, ListResponse<T>?) {
-            guard let json = try? JSONSerialization.jsonObject(with: data.data, options: []) else {
-                throw NetworkError.jsonSerializationFailed(message: "Not Valid JSON Format")
-            }
-            if isList {
-                guard let listResponse: ListResponse<T> = ListResponse(data: json) else {
-                    throw NetworkError.jsonToDictionaryFailed(message: "JSONSerialization error")
-                }
-                if listResponse.code != ResponseCode.successResponseStatus {
-                    try NetworkError.handleError(responseCode: listResponse.code, message: listResponse.message)
-                }
-                return (nil, listResponse)
-            } else {
-                guard let response: ModelResponse<T> = ModelResponse(data: json) else {
-                    throw NetworkError.jsonToDictionaryFailed(message: "JSONSerialization error")
-                }
-                if response.code != ResponseCode.successResponseStatus {
-                    try NetworkError.handleError(responseCode: response.code, message: response.message)
-                }
-                return (response, nil)
-            }
+    var jsonDeoder: JSONDecoder {
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        if let dateFormat = ElegantMoya.Codable.dateFormat {
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = dateFormat
+            decoder.dateDecodingStrategy = .formatted(dateFormatter)
+        } else {
+            decoder.dateDecodingStrategy = ElegantMoya.Codable.dateDecodingStrategy
+        }
+        return decoder
     }
 }
 
@@ -218,5 +198,13 @@ private extension Network {
                 key == string
             })
         }
+    }
+}
+
+extension RangeReplaceableCollection {
+    @discardableResult
+    mutating func removeFirst(where predicate: (Element) throws -> Bool) rethrows -> Element? {
+        guard let index = try firstIndex(where: predicate) else { return nil }
+        return remove(at: index)
     }
 }
