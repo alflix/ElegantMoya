@@ -108,15 +108,15 @@ private extension Network {
         comletion: NetworkSuccessBlock<T>? = nil,
         errorBlock: NetworkErrorBlock? = nil) {
         do {
-            try response.filterSuccessfulStatusCodes()
+            if response.statusCode != CustomCode.cache.rawValue {
+                try response.filterSuccessfulStatusCodes()
+            }
             let json = try response.mapJSON()
             guard let responseBody = ResponseObject<T>(json: json) else {
                 throw MoyaError.jsonMapping(response)
             }
             if responseBody.code != ElegantMoya.ResponseCode.success {
-                errorBlock?(NetworkError.response(responseBody))
-                ShowHudHelper.showFail(api: api, message: responseBody.message ?? ElegantMoya.ErrorMessage.networt, view: view)
-                return
+                throw NetworkError.response(responseBody)
             }
             if !isFromCache && api.cachePolicy != .fetchIgnoringCacheData {
                 ResponseCache.cacheData(api, data: response)
@@ -140,6 +140,13 @@ private extension Network {
                 responseBody.model = model
                 comletion?(responseBody, isFromCache)
             }
+        } catch let NetworkError.response(responseBody) {
+            errorBlock?(NetworkError.response(responseBody))
+            if responseBody.code == HTTPStatusCode.unauthorized.rawValue {
+                ShowHudHelper.showFail(api: api, message: ElegantMoya.ErrorMessage.unauthorized, view: view)
+                ElegantMoya.logoutClosure()
+            }
+            ShowHudHelper.showFail(api: api, message: responseBody.message ?? ElegantMoya.ErrorMessage.networt, view: view)
         } catch let MoyaError.statusCode(response) {
             errorBlock?(NetworkError.moya(MoyaError.statusCode(response)))
             if (500...599).contains(response.statusCode) {

@@ -8,10 +8,9 @@
 
 import Foundation
 
-/// 自定义错误类型（待完善）
+/// 客户端自定义 Code
 ///
-/// - cache: 缓存错误
-/// - loadFail: 加载错误
+/// - cache: 缓存类型
 public enum CustomCode: Int {
     case cache = 600
 }
