@@ -28,6 +28,11 @@ public class PlainNetwork {
         -> Cancellable? {
             return request(api, in: view, comletion: completion, errorBlock: errorBlock)
     }
+
+    // 用来处理只请求一次的栅栏队列
+    private let barrierQueue = DispatchQueue(label: "com.PlainNetwork.ElegantMoya", attributes: .concurrent)
+    // 用来处理只请求一次的数组,保存请求的信息 唯一
+    private var fetchRequestKeys = [String]()
 }
 
 private extension PlainNetwork {
@@ -44,16 +49,30 @@ private extension PlainNetwork {
         comletion: ResponseSuccessBlock? = nil,
         errorBlock: NetworkErrorBlock? = nil)
         -> Cancellable? {
+            // 同一请求正在请求直接返回
+            if isSameRequest(api) {
+                return nil
+            }
             let provider = ElegantMoya.createProvider(api: api, showLoading: true, in: view)
             let cancellable = provider.request(api, callbackQueue: .global()) { (response) in
+                // 请求完成移除
+                self.cleanRequest(api)
                 switch response {
                 case .success(let response):
                     DispatchQueue.main.async {
                         self.handleSuccessResponse(api, in: view, response: response, comletion: comletion, errorBlock: errorBlock)
                     }
                 case .failure(let error):
-                    ShowHudHelper.showFail(api: api, message: error.errorDescription, view: view)
-                    errorBlock?(NetworkError.moya(error))
+                    switch error {
+                    case let MoyaError.underlying(moyaError, _):
+                        // underlying 这个类型的错误比较迷
+                        break
+                    default:
+                        ShowHudHelper.showFail(api: api, message: error.errorDescription, view: view)
+                    }
+                    DispatchQueue.main.async {
+                        errorBlock?(NetworkError.moya(error))
+                    }
                 }
             }
             return cancellable
@@ -102,6 +121,30 @@ private extension PlainNetwork {
             #if Debug
             fatalError("unkwnow error")
             #endif
+        }
+    }
+}
+
+/// 保证同一请求同一时间只请求一次(待完善)
+private extension PlainNetwork {
+    func isSameRequest<API: TargetType & MoyaAddable>(_ api: API) -> Bool {
+        let key = ResponseCache.uniqueKey(api)
+        var result: Bool!
+        barrierQueue.sync(flags: .barrier) {
+            result = fetchRequestKeys.contains(key)
+            if !result {
+                fetchRequestKeys.append(key)
+            }
+        }
+        return result
+    }
+
+    func cleanRequest<API: ElegantMayaProtocol>(_ api: API) {
+        let key = ResponseCache.uniqueKey(api)
+        _ = barrierQueue.sync(flags: .barrier) {
+            fetchRequestKeys.removeFirst(where: { (string) -> Bool in
+                key == string
+            })
         }
     }
 }

@@ -50,7 +50,9 @@ private extension Network {
         errorBlock: NetworkErrorBlock? = nil)
         -> Cancellable? {
             // 同一请求正在请求直接返回
-            if isSameRequest(api) { return nil }
+            if isSameRequest(api) {
+                return nil
+            }
             let successblock = { (isFromCache: Bool, shouldRevoke: Bool, response: Response) in
                 DispatchQueue.main.async {
                     self.handleSuccessResponse(api, in: view, response: response, isFromCache: isFromCache,
@@ -92,8 +94,16 @@ private extension Network {
                     let shouldRevoke = !fetchBackground
                     successblock(false, shouldRevoke, response)
                 case .failure(let error):
-                    ShowHudHelper.showFail(api: api, message: error.errorDescription, view: view)
-                    errorBlock?(NetworkError.moya(error))
+                    switch error {
+                    case let MoyaError.underlying(moyaError, _):
+                        // underlying 这个类型的错误比较迷
+                        break
+                    default:
+                        ShowHudHelper.showFail(api: api, message: error.errorDescription, view: view)
+                    }
+                    DispatchQueue.main.async {
+                        errorBlock?(NetworkError.moya(error))
+                    }
                 }
             }
             return cancellable

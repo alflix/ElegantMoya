@@ -111,11 +111,11 @@ public extension NetworkViewController {
     }
 
     /// 加载失败调用(是否显示加载数据失败后的视图，默认显示)
-    func endLoadDataFail(isShow: Bool = true) {
+    func endLoadDataFail(isShow: Bool = true, contentInset: UIEdgeInsets = .zero) {
         loadingState = .fail
         updateRefresherState(hasNextPage: false)
         refreshScrollView?.switchRefreshFooter(to: .removed)
-        setupLoadFailedView(isShow: isShow)
+        setupLoadFailedView(isShow: isShow, contentInset: contentInset)
     }
 
     var isFirstPage: Bool {
@@ -190,7 +190,7 @@ extension NetworkViewController {
     }
 
     /// 是否显示加载数据失败后的视图
-    private func setupLoadFailedView(isShow: Bool) {
+    private func setupLoadFailedView(isShow: Bool, contentInset: UIEdgeInsets) {
         if !isShow || loadFailedView != nil {
             loadFailedView?.alpha = 1
             return
@@ -216,7 +216,7 @@ extension NetworkViewController {
                                               toItem: view,
                                               attribute: .top,
                                               multiplier: 1,
-                                              constant: 0))
+                                              constant: contentInset.top))
 
         view.addConstraint(NSLayoutConstraint(item: loadFailedView,
                                               attribute: .left,
@@ -224,7 +224,7 @@ extension NetworkViewController {
                                               toItem: view,
                                               attribute: .left,
                                               multiplier: 1,
-                                              constant: 0))
+                                              constant: contentInset.left))
 
         view.addConstraint(NSLayoutConstraint(item: loadFailedView,
                                               attribute: .right,
@@ -232,7 +232,7 @@ extension NetworkViewController {
                                               toItem: view,
                                               attribute: .right,
                                               multiplier: 1,
-                                              constant: 0))
+                                              constant: contentInset.right))
 
         view.addConstraint(NSLayoutConstraint(item: loadFailedView,
                                               attribute: .bottom,
@@ -240,7 +240,7 @@ extension NetworkViewController {
                                               toItem: view,
                                               attribute: .bottom,
                                               multiplier: 1,
-                                              constant: 0))
+                                              constant: contentInset.bottom))
     }
 }
 

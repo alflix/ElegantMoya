@@ -34,6 +34,7 @@ public struct ShowHudHelper {
     }
 
     static func showFail<API: ElegantMayaProtocol>(api: API, message: String?, view: UIView? = nil) {
+        guard api.isShowFailHud else { return }
         if let view = view ?? UIApplication.shared.windows.first, let message = message {
             view.hideHud()
             view.showFailHud(title: message ?? ElegantMoya.ErrorMessage.networt)

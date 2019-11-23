@@ -177,3 +177,29 @@ public class ImageUploader {
         dataTask.resume()
     }
 }
+
+extension UIImage {
+    /// 裁剪并压缩到一定的体积
+    ///
+    /// - Parameter size: 单位 KB
+    /// - Returns: 图片 data
+    func imageCropAndResize(to size: Int) -> Data {
+        var image = self
+        var imageData = image.jpegData(compressionQuality: 0.9)!
+        while imageData.count/1024 > size {
+            image = image.scaled(toWidth: image.size.width/2) ?? image
+            imageData = image.jpegData(compressionQuality: 0.9)!
+        }
+        return imageData
+    }
+
+    func scaled(toWidth: CGFloat, opaque: Bool = false) -> UIImage? {
+        let scale = toWidth / size.width
+        let newHeight = size.height * scale
+        UIGraphicsBeginImageContextWithOptions(CGSize(width: toWidth, height: newHeight), opaque, self.scale)
+        draw(in: CGRect(x: 0, y: 0, width: toWidth, height: newHeight))
+        let newImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return newImage
+    }
+}

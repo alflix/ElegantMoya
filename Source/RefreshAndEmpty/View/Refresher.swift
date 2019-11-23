@@ -76,6 +76,7 @@ public class Refresher: UIView, RefreshableHeader {
         rotateAnimation.duration = 1
         rotateAnimation.isCumulative = true
         rotateAnimation.repeatCount = 10000000
+        rotateAnimation.isRemovedOnCompletion = false
         circleLayer.add(rotateAnimation, forKey: "rotate")
     }
 
