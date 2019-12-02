@@ -58,7 +58,8 @@ public struct DefaultDataResponse {
         data: Data?,
         error: Error?,
         timeline: Timeline = Timeline(),
-        metrics: AnyObject? = nil) {
+        metrics: AnyObject? = nil)
+    {
         self.request = request
         self.response = response
         self.data = data
@@ -108,7 +109,8 @@ public struct DataResponse<Value> {
         response: HTTPURLResponse?,
         data: Data?,
         result: Result<Value>,
-        timeline: Timeline = Timeline()) {
+        timeline: Timeline = Timeline())
+    {
         self.request = request
         self.response = response
         self.data = data
@@ -129,15 +131,19 @@ extension DataResponse: CustomStringConvertible, CustomDebugStringConvertible {
     /// The debug textual representation used when written to an output stream, which includes the URL request, the URL
     /// response, the server data, the response serialization result and the timeline.
     public var debugDescription: String {
-        var output: [String] = []
+        let requestDescription = request.map { "\($0.httpMethod ?? "GET") \($0)"} ?? "nil"
+        let requestBody = request?.httpBody.map { String(decoding: $0, as: UTF8.self) } ?? "None"
+        let responseDescription = response.map { "\($0)" } ?? "nil"
+        let responseBody = data.map { String(decoding: $0, as: UTF8.self) } ?? "None"
 
-        output.append(request != nil ? "[Request]: \(request!.httpMethod ?? "GET") \(request!)" : "[Request]: nil")
-        output.append(response != nil ? "[Response]: \(response!)" : "[Response]: nil")
-        output.append("[Data]: \(data?.count ?? 0) bytes")
-        output.append("[Result]: \(result.debugDescription)")
-        output.append("[Timeline]: \(timeline.debugDescription)")
-
-        return output.joined(separator: "\n")
+        return """
+        [Request]: \(requestDescription)
+        [Request Body]: \n\(requestBody)
+        [Response]: \(responseDescription)
+        [Response Body]: \n\(responseBody)
+        [Result]: \(result)
+        [Timeline]: \(timeline.debugDescription)
+        """
     }
 }
 
@@ -294,7 +300,8 @@ public struct DefaultDownloadResponse {
         resumeData: Data?,
         error: Error?,
         timeline: Timeline = Timeline(),
-        metrics: AnyObject? = nil) {
+        metrics: AnyObject? = nil)
+    {
         self.request = request
         self.response = response
         self.temporaryURL = temporaryURL
@@ -356,7 +363,8 @@ public struct DownloadResponse<Value> {
         destinationURL: URL?,
         resumeData: Data?,
         result: Result<Value>,
-        timeline: Timeline = Timeline()) {
+        timeline: Timeline = Timeline())
+    {
         self.request = request
         self.response = response
         self.temporaryURL = temporaryURL
@@ -380,17 +388,20 @@ extension DownloadResponse: CustomStringConvertible, CustomDebugStringConvertibl
     /// response, the temporary and destination URLs, the resume data, the response serialization result and the
     /// timeline.
     public var debugDescription: String {
-        var output: [String] = []
+        let requestDescription = request.map { "\($0.httpMethod ?? "GET") \($0)"} ?? "nil"
+        let requestBody = request?.httpBody.map { String(decoding: $0, as: UTF8.self) } ?? "None"
+        let responseDescription = response.map { "\($0)" } ?? "nil"
 
-        output.append(request != nil ? "[Request]: \(request!.httpMethod ?? "GET") \(request!)" : "[Request]: nil")
-        output.append(response != nil ? "[Response]: \(response!)" : "[Response]: nil")
-        output.append("[TemporaryURL]: \(temporaryURL?.path ?? "nil")")
-        output.append("[DestinationURL]: \(destinationURL?.path ?? "nil")")
-        output.append("[ResumeData]: \(resumeData?.count ?? 0) bytes")
-        output.append("[Result]: \(result.debugDescription)")
-        output.append("[Timeline]: \(timeline.debugDescription)")
-
-        return output.joined(separator: "\n")
+        return """
+        [Request]: \(requestDescription)
+        [Request Body]: \n\(requestBody)
+        [Response]: \(responseDescription)
+        [TemporaryURL]: \(temporaryURL?.path ?? "nil")
+        [DestinationURL]: \(destinationURL?.path ?? "nil")
+        [ResumeData]: \(resumeData?.count ?? 0) bytes
+        [Result]: \(result)
+        [Timeline]: \(timeline.debugDescription)
+        """
     }
 }
 

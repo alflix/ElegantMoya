@@ -161,7 +161,8 @@ open class Request {
         user: String,
         password: String,
         persistence: URLCredential.Persistence = .forSession)
-        -> Self {
+        -> Self
+    {
         let credential = URLCredential(user: user, password: password, persistence: persistence)
         return authenticate(usingCredential: credential)
     }
@@ -496,8 +497,19 @@ open class DownloadRequest: Request {
     // MARK: State
 
     /// Cancels the request.
-    open override func cancel() {
-        downloadDelegate.downloadTask.cancel { self.downloadDelegate.resumeData = $0 }
+    override open func cancel() {
+        cancel(createResumeData: true)
+    }
+
+    /// Cancels the request.
+    ///
+    /// - parameter createResumeData: Determines whether resume data is created via the underlying download task or not.
+    open func cancel(createResumeData: Bool) {
+        if createResumeData {
+            downloadDelegate.downloadTask.cancel { self.downloadDelegate.resumeData = $0 }
+        } else {
+            downloadDelegate.downloadTask.cancel()
+        }
 
         NotificationCenter.default.post(
             name: Notification.Name.Task.DidCancel,
@@ -532,7 +544,8 @@ open class DownloadRequest: Request {
     open class func suggestedDownloadDestination(
         for directory: FileManager.SearchPathDirectory = .documentDirectory,
         in domain: FileManager.SearchPathDomainMask = .userDomainMask)
-        -> DownloadFileDestination {
+        -> DownloadFileDestination
+    {
         return { temporaryURL, response in
             let directoryURLs = FileManager.default.urls(for: directory, in: domain)
 

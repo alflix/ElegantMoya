@@ -6,14 +6,13 @@ target 'Demo' do
         
     # Tool
     pod 'SwiftLint'
-    pod 'FLEX'
 
     # Sources dependency
-    pod 'GGUI',                        :path => '~/Work/ganguo/Swift/DevelopPods/GGUI'
-    pod 'GGUI/MBProgressHUD',          :path => '~/Work/ganguo/Swift/DevelopPods/GGUI'
     pod 'Moya'
+    pod 'GGUI'
+    pod 'MBProgressHUD'
     pod 'Cache'
     pod 'PullToRefreshKit'
     pod 'DZNEmptyDataSet'
-    
+
 end

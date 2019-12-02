@@ -1,16 +1,8 @@
 PODS:
-  - Alamofire (4.8.2)
+  - Alamofire (4.9.1)
   - Cache (5.2.0)
   - DZNEmptyDataSet (1.8.1)
-  - FLEX (2.4.0)
-  - GGUI (1.0):
-    - GGUI/Core (= 1.0)
-  - GGUI/Core (1.0):
-    - SnapKit
-    - SwifterSwift
-  - GGUI/MBProgressHUD (1.0):
-    - GGUI/Core
-    - MBProgressHUD
+  - GGUI (0.9.1)
   - MBProgressHUD (1.1.0)
   - Moya (13.0.1):
     - Moya/Core (= 13.0.1)
@@ -19,70 +11,41 @@ PODS:
     - Result (~> 4.1)
   - PullToRefreshKit (0.8.8)
   - Result (4.1.0)
-  - SnapKit (5.0.0)
-  - SwifterSwift (5.0.0):
-    - SwifterSwift/AppKit (= 5.0.0)
-    - SwifterSwift/CoreGraphics (= 5.0.0)
-    - SwifterSwift/CoreLocation (= 5.0.0)
-    - SwifterSwift/Dispatch (= 5.0.0)
-    - SwifterSwift/Foundation (= 5.0.0)
-    - SwifterSwift/MapKit (= 5.0.0)
-    - SwifterSwift/SpriteKit (= 5.0.0)
-    - SwifterSwift/SwiftStdlib (= 5.0.0)
-    - SwifterSwift/UIKit (= 5.0.0)
-  - SwifterSwift/AppKit (5.0.0)
-  - SwifterSwift/CoreGraphics (5.0.0)
-  - SwifterSwift/CoreLocation (5.0.0)
-  - SwifterSwift/Dispatch (5.0.0)
-  - SwifterSwift/Foundation (5.0.0)
-  - SwifterSwift/MapKit (5.0.0)
-  - SwifterSwift/SpriteKit (5.0.0)
-  - SwifterSwift/SwiftStdlib (5.0.0)
-  - SwifterSwift/UIKit (5.0.0)
   - SwiftLint (0.31.0)
 
 DEPENDENCIES:
   - Cache
   - DZNEmptyDataSet
-  - FLEX
-  - GGUI (from `~/Work/ganguo/Swift/DevelopPods/GGUI`)
-  - GGUI/MBProgressHUD (from `~/Work/ganguo/Swift/DevelopPods/GGUI`)
+  - GGUI
+  - MBProgressHUD
   - Moya
   - PullToRefreshKit
   - SwiftLint
 
 SPEC REPOS:
-  https://github.com/cocoapods/specs.git:
+  https://github.com/CocoaPods/Specs.git:
+    - SwiftLint
+  trunk:
     - Alamofire
     - Cache
     - DZNEmptyDataSet
-    - FLEX
+    - GGUI
     - MBProgressHUD
     - Moya
     - PullToRefreshKit
     - Result
-    - SnapKit
-    - SwifterSwift
-    - SwiftLint
-
-EXTERNAL SOURCES:
-  GGUI:
-    :path: "~/Work/ganguo/Swift/DevelopPods/GGUI"
 
 SPEC CHECKSUMS:
-  Alamofire: ae5c501addb7afdbb13687d7f2f722c78734c2d3
+  Alamofire: 85e8a02c69d6020a0d734f6054870d7ecb75cf18
   Cache: 807c5d86d01a177f06ede9865add3aea269bbfd4
   DZNEmptyDataSet: 9525833b9e68ac21c30253e1d3d7076cc828eaa7
-  FLEX: bd1a39e55b56bb413b6f1b34b3c10a0dc44ef079
-  GGUI: c7770e19963ecbca68d82ee16d9727cd340c0d0f
+  GGUI: 2bef47932b30d4fc4525ea7456ce466584befde8
   MBProgressHUD: e7baa36a220447d8aeb12769bf0585582f3866d9
   Moya: f4a4b80ff2f8a4ffc208dfb31cd91636622fee6e
   PullToRefreshKit: 7cc53e720e69f135cffa1a57784dfb534f0222ab
   Result: bd966fac789cc6c1563440b348ab2598cc24d5c7
-  SnapKit: fd22d10eb9aff484d79a8724eab922c1ddf89bcf
-  SwifterSwift: 96f90594b370802f01647c2b1229c74a84ffafee
   SwiftLint: 7a0227733d786395817373b2d0ca799fd0093ff3
 
-PODFILE CHECKSUM: 25441b817dfe761626f1ca185956fe1d5e8355bb
+PODFILE CHECKSUM: 0c89066775d81a9cbea577d9707e3766bd309488
 
-COCOAPODS: 1.7.5
+COCOAPODS: 1.8.4
