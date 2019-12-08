@@ -1,4 +1,4 @@
-<img src="![](https://tva1.sinaimg.cn/large/006tNbRwgy1g9it4ilhqdj310k0fewf0.jpg)">
+<img src="https://tva1.sinaimg.cn/large/006tNbRwgy1g9it4ilhqdj310k0fewf0.jpg">
 
 [![Version](https://img.shields.io/cocoapods/v/ElegantMoya.svg?style=flat)](http://cocoapods.org/pods/ElegantMoya)
 [![License](https://img.shields.io/cocoapods/l/ElegantMoya.svg?style=flat)](http://cocoapods.org/pods/ElegantMoya)
