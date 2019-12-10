@@ -2,6 +2,7 @@ ${PODS_ROOT}/Target Support Files/Pods-Demo/Pods-Demo-frameworks.sh
 ${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework
 ${BUILT_PRODUCTS_DIR}/Cache/Cache.framework
 ${BUILT_PRODUCTS_DIR}/DZNEmptyDataSet/DZNEmptyDataSet.framework
+${BUILT_PRODUCTS_DIR}/ElegantMoya/ElegantMoya.framework
 ${BUILT_PRODUCTS_DIR}/GGUI/GGUI.framework
 ${BUILT_PRODUCTS_DIR}/MBProgressHUD/MBProgressHUD.framework
 ${BUILT_PRODUCTS_DIR}/Moya/Moya.framework

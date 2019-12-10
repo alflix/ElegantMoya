@@ -3,16 +3,5 @@ inhibit_all_warnings!
 use_frameworks!
 
 target 'Demo' do
-        
-    # Tool
-    pod 'SwiftLint'
-
-    # Sources dependency
-    pod 'Moya'
-    pod 'GGUI'
-    pod 'MBProgressHUD'
-    pod 'Cache'
-    pod 'PullToRefreshKit'
-    pod 'DZNEmptyDataSet'
-
+    pod 'ElegantMoya/RefreshAndEmpty',                  :path => '../'
 end

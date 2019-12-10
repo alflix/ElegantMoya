@@ -18,7 +18,7 @@ Pod::Spec.new do |s|
         cs.dependency 	'Moya'
         cs.dependency 	'Cache'
 		cs.dependency 	'MBProgressHUD'
-		cs.source_files 'Source/Core/**/*.swift'
+		cs.source_files = 'Source/Core/**/*.swift'
 	end
 
 	s.subspec 'RefreshAndEmpty' do |ss|
@@ -26,6 +26,6 @@ Pod::Spec.new do |s|
         ss.dependency      'GGUI'
 	    ss.dependency      'PullToRefreshKit'
 	    ss.dependency      'DZNEmptyDataSet'
-	    ss.source_files    'Source/RefreshAndEmpty/**/*.swift'
+	    ss.source_files    = 'Source/RefreshAndEmpty/**/*.swift'
 	end
 end

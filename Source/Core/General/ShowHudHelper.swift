@@ -7,13 +7,12 @@
 
 import UIKit
 import Moya
-import MBProgressHUDGanguo
 
 public struct ShowHudHelper {
     static func showLoading<API: ElegantMayaProtocol>(api: API, view: UIView? = nil) {
         guard api.isShowHud else { return }
         if let view = view ?? UIApplication.shared.windows.first {
-            view.showLoadingHud(autoHide: false)
+            view.showLoadingHud()
         }
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
     }

@@ -51,7 +51,7 @@ public class Refresher: UIView, RefreshableHeader {
         return adjustOffset
     }
 
-    /// MARK: - RefreshableHeader -
+    // MARK: - RefreshableHeader -
     public func heightForHeader() -> CGFloat {
         return 88
     }

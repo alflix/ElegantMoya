@@ -47,7 +47,11 @@ open class NetworkViewController: UIViewController {
     /// 占位图片 optional override
     open var emptyImage: UIImage {
         guard let emptyImage = RefreshAndEmpty.DefaultSetting.emptyImage else {
-            return UIImage()
+            if #available(iOS 11.0, *) {
+                return UIImage()
+            }
+            /// fix ios 10 UIImage() 闪退
+            return UIImage().resizableImage(withCapInsets: UIEdgeInsets(top: 0, left: CGFloat.leastNonzeroMagnitude, bottom: 0, right: 0))
         }
         return emptyImage
     }
