@@ -2,7 +2,7 @@ Pod::Spec.new do |s|
 
 	s.name                  = 'ElegantMoya'
 	s.version               = '0.9'
-	s.summary               = 'Ganguo Network Kit In Swift'
+	s.summary               = 'Network Kit Base on Moya'
 	s.homepage              = 'https://github.com/alflix/ElegantMoya'
 	s.license               = { :type => 'Apache-2.0', :file => 'LICENSE' }
 	s.authors               = { 'John' => 'jieyuanz24@gmail.com' }
