@@ -1,9 +1,9 @@
 //
 //  UIView+Hud.swift
-//  MBProgressHUD+Ganguo
+//  ElegantMoya
 //
 //  Created by John on 2019/4/10.
-//  Copyright © 2019 Ganguo. All rights reserved.
+//  Copyright © 2019 ElegantMoya. All rights reserved.
 //
 
 import Foundation

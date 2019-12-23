@@ -174,9 +174,7 @@ private extension Network {
             errorBlock?(NetworkError.moya(MoyaError.objectMapping(error, response)))
             ShowHudHelper.showFail(api: api, message: ElegantMoya.ErrorMessage.serialization, view: view)
         } catch {
-            #if Debug
-            fatalError("unkwnow error")
-            #endif
+            assert(true, "unkwnow error")
         }
     }
 

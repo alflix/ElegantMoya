@@ -73,9 +73,7 @@ open class NetworkViewController: UIViewController {
 
     /// 显示占位的父视图 must override
     open var refreshScrollView: UIScrollView? {
-        #if DEBUG
         assert(false, "must override refreshScrollView ")
-        #endif
         return nil
     }
 
@@ -89,9 +87,7 @@ open class NetworkViewController: UIViewController {
 
     /// must override
     open func loadData() {
-        #if DEBUG
         assert(false, "must override loadData ")
-        #endif
     }
 
     override open func viewDidLoad() {

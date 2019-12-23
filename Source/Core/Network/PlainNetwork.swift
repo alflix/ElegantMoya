@@ -118,9 +118,7 @@ private extension PlainNetwork {
             errorBlock?(NetworkError.moya(MoyaError.jsonMapping(response)))
             ShowHudHelper.showFail(api: api, message: ElegantMoya.ErrorMessage.serialization, view: view)
         } catch {
-            #if Debug
-            fatalError("unkwnow error")
-            #endif
+            assert(true, "unkwnow error")
         }
     }
 }
