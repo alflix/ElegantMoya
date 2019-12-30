@@ -56,6 +56,14 @@ open class NetworkViewController: UIViewController {
         return emptyImage
     }
 
+    /// 空占位的垂直 offset
+    open var verticalOffset: CGFloat {
+        guard let verticalOffsetProportion = RefreshAndEmpty.DefaultSetting.verticalOffsetProportion else {
+            fatalError("must override this variable or DefaultSetting.verticalOffsetProportion must not be nil")
+        }
+        return view.bounds.height/verticalOffsetProportion
+    }
+
     /// 设置刷新类型，默认头部和底部
     open var refreshType: RefreshType {
         return .headerAndFooter
@@ -254,10 +262,7 @@ extension NetworkViewController: DZNEmptyDataSetSource & DZNEmptyDataSetDelegate
     }
 
     public func verticalOffset(forEmptyDataSet scrollView: UIScrollView!) -> CGFloat {
-        if let verticalOffsetProportion = RefreshAndEmpty.DefaultSetting.verticalOffsetProportion {
-            return view.bounds.height/verticalOffsetProportion
-        }
-        return 0
+        return verticalOffset
     }
 
     public func emptyDataSetShouldAllowScroll(_ scrollView: UIScrollView!) -> Bool {
