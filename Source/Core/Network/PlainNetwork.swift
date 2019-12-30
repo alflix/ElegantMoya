@@ -123,7 +123,7 @@ private extension PlainNetwork {
     }
 }
 
-/// 保证同一请求同一时间只请求一次(待完善)
+/// TODO：(待完善) 保证同一请求同一时间只请求一次
 private extension PlainNetwork {
     func isSameRequest<API: TargetType & MoyaAddable>(_ api: API) -> Bool {
         let key = ResponseCache.uniqueKey(api)

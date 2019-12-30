@@ -8,6 +8,7 @@
 import UIKit
 import Moya
 
+// TODO: 支持插件化
 public struct ShowHudHelper {
     static func showLoading<API: ElegantMayaProtocol>(api: API, view: UIView? = nil) {
         guard api.isShowHud else { return }

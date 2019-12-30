@@ -85,7 +85,7 @@ public extension NetworkError {
     }
 }
 
-// 分页 TODO：可定制
+// TODO: 分页支持定制
 public struct Pagination: Codable {
     /// 第几页(起始页为1)
     public var page: Int
