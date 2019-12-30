@@ -16,11 +16,11 @@ public enum CachePolicy {
     case fetchIgnoringCacheData
     /// 返回缓存，并且拉取数据（常用于列表页，先显示缓存给用户，再拉取数据，注意会有2个回调）
     case returnCacheDataAndFetch
-    /// 返回缓存，并且默默地拉取数据（如果缓存已经有回调了，拉取数据完成后没有回调）
+    /// 返回缓存，并且默默地拉取数据（如果缓存已经有回调了，拉取数据完成后没有回调，用于对时效性不高的 API，例如获取关于我们的 API）
     case returnCacheDataAndFetchBackground
-    /// 返回缓存，如果没有缓存的话，拉取数据（用于较固定的数据，例如后台返回的城市列表数据）
+    /// 返回缓存，如果没有缓存的话，拉取数据（用于获取固定的数据，例如后台返回的城市列表数据）
     case returnCacheDataElseFetch
-    /// 只返回缓存（较少用）
+    /// 只返回缓存（基本不用）
     case returnCacheDataDontFetch
 }
 
