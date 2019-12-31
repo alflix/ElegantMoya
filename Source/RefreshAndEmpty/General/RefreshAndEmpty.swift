@@ -15,7 +15,7 @@ public struct RefreshAndEmpty {
         /// 为空默认显示文字
         public static var emptyTitle: String?
         /// 为空视图在 View 中显示的 offset，view.height 的比例值，例如 -4:往上移动 view.height/4 的高度
-        public static var verticalOffsetProportion: CGFloat?
+        public static var verticalOffsetProportion: CGFloat = 1.0
         /// 为空默认显示文字的属性
         public static var titleAttributes: [NSAttributedString.Key: Any] = defaultTitleAttributes()
         /// 用来显示加载数据失败后的视图
