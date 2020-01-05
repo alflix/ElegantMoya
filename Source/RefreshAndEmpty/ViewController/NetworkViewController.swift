@@ -52,13 +52,16 @@ open class NetworkViewController: UIViewController {
             }
             /// fix ios 10 UIImage() 闪退
             return UIImage().resizableImage(withCapInsets: UIEdgeInsets(top: 0, left: CGFloat.leastNonzeroMagnitude, bottom: 0, right: 0))
-        } 
+        }
         return emptyImage
     }
 
     /// 空占位的垂直 offset
     open var verticalOffset: CGFloat {
-        return view.bounds.height/RefreshAndEmpty.DefaultSetting.verticalOffsetProportion
+        if let verticalOffsetProportion = RefreshAndEmpty.DefaultSetting.verticalOffsetProportion {
+            return view.bounds.height/verticalOffsetProportion
+        }
+        return 0
     }
 
     /// 设置刷新类型，默认头部和底部
