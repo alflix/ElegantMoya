@@ -16,6 +16,7 @@ public class PlainNetwork {
     ///
     /// - Parameters:
     ///   - api: 根据Moya定义的接口
+    ///   - view: api 所在请求的页面，用于显示 hud， 为空的话在 UIWindow 上调用（会卡住用户操作）
     ///   - completion: 结束返回数据闭包
     ///   - errorBlock: 错误信息返回闭包
     /// - Returns: 可以用来取消请求

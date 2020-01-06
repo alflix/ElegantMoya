@@ -13,7 +13,7 @@ import Moya
 public class Network<T> where T: Codable {
     public init() { }
 
-    /// 请求接口
+    /// 请求接口，并处理数据解析，缓存
     /// - Parameters:
     ///   - api: 根据Moya定义的接口
     ///   - view: api 所在请求的页面，用于显示 hud， 为空的话在 UIWindow 上调用（会卡住用户操作）
