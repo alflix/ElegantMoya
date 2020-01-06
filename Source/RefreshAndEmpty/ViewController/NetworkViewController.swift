@@ -138,12 +138,12 @@ public extension NetworkViewController {
             }
             return
         }
-        if pagination.last > pagination.page {
-            page = (page ?? Pagination.PageSetting.firstPage) + 1
-        } else {
-            page = pagination.page
-        }
         if !isCache {
+            if pagination.last > pagination.page {
+                page = (page ?? Pagination.PageSetting.firstPage) + 1
+            } else {
+                page = pagination.page
+            }
             updateRefresherState(hasNextPage: pagination.last > pagination.page)
         }
     }
