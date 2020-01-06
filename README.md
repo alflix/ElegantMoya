@@ -21,7 +21,7 @@ to do
 
 ### Requirements 
 
-- Swift 4.2
+- Swift 5.1
 - iOS 9.0 
 
 ### Cocoapods

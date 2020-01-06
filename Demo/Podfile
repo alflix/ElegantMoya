@@ -3,5 +3,10 @@ inhibit_all_warnings!
 use_frameworks!
 
 target 'Demo' do
-    pod 'ElegantMoya/RefreshAndEmpty',                  :path => '../'
+  pod 'Moya'
+  pod 'Cache'
+  pod 'MBProgressHUD'
+  pod 'GGUI'
+  pod 'DZNEmptyDataSet'
+  pod 'PullToRefreshKit'
 end
