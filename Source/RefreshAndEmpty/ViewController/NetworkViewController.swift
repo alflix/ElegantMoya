@@ -140,7 +140,7 @@ public extension NetworkViewController {
         }
         if !isCache {
             if pagination.last > pagination.page {
-                page = (page ?? Pagination.PageSetting.firstPage) + 1
+                page += 1
             } else {
                 page = pagination.page
             }

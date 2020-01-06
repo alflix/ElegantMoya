@@ -66,11 +66,11 @@ public struct ResponseCache {
             if let page = parameters["page"] as? Int, page > Pagination.PageSetting.firstPage {
                 shouldCache = false
             }
-        case let .requestCompositeData(bodyData, urlParameters):
+        case let .requestCompositeData(_, urlParameters):
             if let page = urlParameters["page"] as? Int, page > Pagination.PageSetting.firstPage {
                 shouldCache = false
             }
-        case let .requestCompositeParameters(bodyParameters, bodyEncoding, urlParameters):
+        case let .requestCompositeParameters(bodyParameters, _, urlParameters):
             if let page = bodyParameters["page"] as? Int, page > Pagination.PageSetting.firstPage {
                 shouldCache = false
             }
@@ -93,7 +93,7 @@ public struct ResponseCache {
             return api.path + parameters.sorted(by: { $0.key > $1.key }).description
         case let .requestCompositeData(bodyData, urlParameters):
             return api.path + urlParameters.sorted(by: { $0.key > $1.key }).description + String(bodyData.hashValue)
-        case let .requestCompositeParameters(bodyParameters, bodyEncoding, urlParameters):
+        case let .requestCompositeParameters(bodyParameters, _, urlParameters):
             return api.path + urlParameters.sorted(by: { $0.key > $1.key }).description + bodyParameters.sorted(by: { $0.key > $1.key }).description
         default:
             return api.path

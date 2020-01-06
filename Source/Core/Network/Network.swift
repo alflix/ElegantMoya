@@ -95,7 +95,7 @@ private extension Network {
                     successblock(false, shouldRevoke, response)
                 case .failure(let error):
                     switch error {
-                    case let MoyaError.underlying(moyaError, _):
+                    case MoyaError.underlying(_, _):
                         // underlying 这个类型的错误比较迷
                         break
                     default:
@@ -133,7 +133,7 @@ private extension Network {
             }
             ShowHudHelper.showSuccess(api: api, view: view)
             if responseBody.isArray {
-                if let data = responseBody.dataContent as? [Any] {
+                if responseBody.dataContent != nil {
                     let keyPath = ElegantMoya.DataMapKeyPath.data + "." + ElegantMoya.DataMapKeyPath.content
                     let models = try response.map([T].self, atKeyPath: keyPath, using: jsonDeoder)
                     let page = try response.map(Pagination.self, atKeyPath: ElegantMoya.DataMapKeyPath.pagination, using: jsonDeoder)

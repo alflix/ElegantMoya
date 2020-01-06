@@ -19,28 +19,28 @@ public class ResponseBody {
 }
 
 public extension ResponseBody {
-    public var code: Int {
+    var code: Int {
         guard let temp = json[ElegantMoya.DataMapKeyPath.code] as? Int else { return ElegantMoya.ResponseCode.fail }
         return temp
     }
 
-    public var message: String? {
+    var message: String? {
         guard let temp = json[ElegantMoya.DataMapKeyPath.message] as? String else { return nil }
         return temp
     }
 
-    public var data: Any? {
+    var data: Any? {
         guard let temp = json[ElegantMoya.DataMapKeyPath.data] else { return nil }
         return temp
     }
 
-    public var dataContent: [Any]? {
+    var dataContent: [Any]? {
         guard let data = data as? [String: Any], let temp = data[ElegantMoya.DataMapKeyPath.content] as? [Any] else { return nil }
         return temp
     }
 
-    public var isArray: Bool {
-        if data is [Any] || dataContent is [Any] {
+    var isArray: Bool {
+        if data is [Any] || dataContent != nil {
             return true
         }
         return false
@@ -106,7 +106,7 @@ public struct Pagination: Codable {
 }
 
 public extension Pagination {
-    static public func pageParameters(page: Int?) -> [String: Any] {
+    static func pageParameters(page: Int?) -> [String: Any] {
         var parameters: [String: Any] = [:]
         if let page = page {
             parameters["page"] = page
@@ -115,7 +115,7 @@ public extension Pagination {
         return parameters
     }
 
-    static public func pageParameters(originalParameters: inout [String: Any], page: Int?) {
+    static func pageParameters(originalParameters: inout [String: Any], page: Int?) {
         if let page = page {
             originalParameters["page"] = page
             originalParameters["size"] = PageSetting.pageSize

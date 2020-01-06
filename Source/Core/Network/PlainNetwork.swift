@@ -65,7 +65,7 @@ private extension PlainNetwork {
                     }
                 case .failure(let error):
                     switch error {
-                    case let MoyaError.underlying(moyaError, _):
+                    case MoyaError.underlying(_, _):
                         // underlying 这个类型的错误比较迷
                         break
                     default:

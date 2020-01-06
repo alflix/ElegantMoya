@@ -37,7 +37,7 @@ public struct ShowHudHelper {
         guard api.isShowFailHud else { return }
         if let view = view ?? UIApplication.shared.windows.first, let message = message {
             view.hideHud()
-            view.showFailHud(title: message ?? ElegantMoya.ErrorMessage.networt)
+            view.showFailHud(title: message)
         }
     }
 }
