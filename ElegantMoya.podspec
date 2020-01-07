@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
 	s.name                  = 'ElegantMoya'
-	s.version               = '0.9'
+	s.version               = '0.9.0'
 	s.summary               = 'Network Kit Base on Moya'
 	s.homepage              = 'https://github.com/alflix/ElegantMoya'
 	s.license               = { :type => 'Apache-2.0', :file => 'LICENSE' }
