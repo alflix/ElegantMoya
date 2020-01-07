@@ -119,7 +119,7 @@ private extension Network {
         errorBlock: NetworkErrorBlock? = nil) {
         do {
             if response.statusCode != CustomCode.cache.rawValue {
-                try response.filterSuccessfulStatusCodes()
+                _ = try response.filterSuccessfulStatusCodes()
             }
             let json = try response.mapJSON()
             guard let responseBody = ResponseObject<T>(json: json) else {

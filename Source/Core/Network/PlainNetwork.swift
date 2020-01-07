@@ -87,7 +87,7 @@ private extension PlainNetwork {
         comletion: ResponseSuccessBlock? = nil,
         errorBlock: NetworkErrorBlock? = nil) {
         do {
-            try response.filterSuccessfulStatusCodes()
+            _ = try response.filterSuccessfulStatusCodes()
             let json = try response.mapJSON()
             guard let responseBody = ResponseBody(json: json) else {
                 throw MoyaError.jsonMapping(response)

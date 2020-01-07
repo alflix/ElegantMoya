@@ -9,4 +9,6 @@ target 'Demo' do
   pod 'GGUI'
   pod 'DZNEmptyDataSet'
   pod 'PullToRefreshKit'
+
+  pod 'SwiftLint'
 end
