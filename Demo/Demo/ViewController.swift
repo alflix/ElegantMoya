@@ -7,10 +7,8 @@
 //
 
 import UIKit
-@_exported import GGUI
 
 class ViewController: UIViewController {
-
     override func viewDidLoad() {
         super.viewDidLoad()
     }
